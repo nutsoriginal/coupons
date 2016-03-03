@@ -40,7 +40,7 @@ After installing `Coupons`, add the following line to your `config/routes.rb` fi
 mount Coupons::Engine => '/', as: 'coupons_engine'
 ```
 
-You can visit `/coupons` to access the dashboard.
+You can visit `/coupons` to access the dashboard or send JSON request.
 
 ## Creating coupons
 
@@ -177,7 +177,7 @@ To be written.
 
 To be written.
 
-### JSON endpoint
+### Additional JSON endpoint
 
 You may want to apply discounts using AJAX, so you can give instant feedback. In this case, you'll find the `/coupons/apply` endpoint useful.
 
