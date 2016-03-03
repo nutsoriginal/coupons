@@ -1,4 +1,6 @@
 class Coupons::CouponsController < Coupons::ApplicationController
+  before_action :set_coupon, only: [:edit, :update, :destroy, :remove, :duplicate]
+
   def apply
     coupon_code = params[:coupon]
     amount = BigDecimal(params.fetch(:amount, '0.0'))
@@ -22,69 +24,84 @@ class Coupons::CouponsController < Coupons::ApplicationController
   def create
     @coupon = Coupon.new(coupon_params)
 
-    if @coupon.save
-      redirect_to coupons_path,
-        notice: t('coupons.flash.coupons.create.notice')
-    else
-      render :new
+    respond_to do |format|
+      if @coupon.save
+        format.html { redirect_to coupons_path, notice: t('coupons.flash.coupons.create.notice') }
+        format.json { render :show, status: :created }
+      else
+        format.html { render :new }
+        format.json { render json: @coupon.errors, status: :unprocessable_entity }
+      end
     end
   end
 
   def edit
-    @coupon = Coupon.find(params[:id])
   end
 
   def duplicate
-    existing_coupon = Coupon.find(params[:id])
-    attributes = existing_coupon.attributes.symbolize_keys.slice(:description, :valid_from, :valid_until, :redemption_limit, :amount, :type)
+    attributes = @coupon.attributes.symbolize_keys.slice(:description, :valid_from, :valid_until, :redemption_limit, :amount, :type)
     @coupon = Coupon.new(attributes)
-    render :new
+
+    respond_to do |format|
+      format.html { render :new }
+      format.json { render :show }
+    end
   end
 
   def update
-    @coupon = Coupon.find(params[:id])
-
-    if @coupon.update(coupon_params)
-      redirect_to coupons_path,
-        notice: t('coupons.flash.coupons.update.notice')
-    else
-      render :edit
+    respond_to do |format|
+      if @coupon.update(coupon_params)
+        format.html { redirect_to coupons_path, notice: t('coupons.flash.coupons.update.notice') }
+        format.json { render :show, status: :ok }
+      else
+        format.html { render :edit }
+        format.json { render json: @coupon.errors, status: :unprocessable_entity }
+      end
     end
   end
 
   def remove
-    @coupon = Coupon.find(params[:id])
   end
 
   def destroy
-    @coupon = Coupon.find(params[:id])
     @coupon.destroy!
 
-    redirect_to coupons_path,
-      notice: t('coupons.flash.coupons.destroy.notice')
+    respond_to do |format|
+      format.html { redirect_to coupons_path, notice: t('coupons.flash.coupons.destroy.notice') }
+      format.json { head :no_content }
+    end
   end
 
   def batch
     if params[:remove_action]
       batch_removal
     else
-      redirect_to coupons_path,
-        alert: t('coupons.flash.coupons.batch.invalid_action')
+      respond_to do |format|
+        format.html { redirect_to coupons_path, alert: t('coupons.flash.coupons.batch.invalid_action') }
+        format.json { render json: { error: t('coupons.flash.coupons.batch.invalid_action') }, status: :unprocessable_entity }
+      end
     end
   end
 
   private
 
-  def batch_removal
-    Coupon.where(id: params[:coupon_ids]).destroy_all
+    def set_coupon
+      @coupon = Coupon.find(params[:id])
+    end
 
-    redirect_to coupons_path,
-      notice: t('coupons.flash.coupons.batch.removal.notice')
-  end
+    def batch_removal
+      Coupon.where(id: params[:coupon_ids]).destroy_all
 
-  def coupon_params
-    params
-      .require(:coupon)
-      .permit(:code, :redemption_limit, :description, :valid_from, :valid_until, :amount, :type)
-  end
+      respond_to do |format|
+        format.html { redirect_to coupons_path, notice: t('coupons.flash.coupons.batch.removal.notice') }
+        format.json { head :no_content }
+      end
+    end
+
+    def coupon_params
+      params
+        .require(:coupon)
+        .permit(:code, :redemption_limit, :description, :valid_from, :valid_until, :amount, :type)
+    end
+
 end
