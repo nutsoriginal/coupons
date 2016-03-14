@@ -1,5 +1,5 @@
 class Coupons::CouponsController < Coupons::ApplicationController
-  before_action :set_coupon, only: [:edit, :update, :destroy, :remove, :duplicate]
+  before_action :set_coupon, only: [:edit, :show, :update, :destroy, :remove, :duplicate]
 
   def apply
     coupon_code = params[:coupon]
@@ -33,6 +33,9 @@ class Coupons::CouponsController < Coupons::ApplicationController
         format.json { render json: @coupon.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def show
   end
 
   def edit
