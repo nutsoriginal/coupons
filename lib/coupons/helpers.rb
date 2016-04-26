@@ -59,15 +59,9 @@ module Coupons
       options[:total] = options[:amount]
 
       coupon = ::Coupons::Models::Coupon.find_by(code: code)
+      return options unless coupon
 
-      if coupon
-        input_amount = BigDecimal("#{options[:amount]}")
-        discount = BigDecimal(coupon.percentage_based? ? coupon.percentage_discount(options[:amount]) : coupon.amount)
-        total = [0, input_amount - discount].max
-        options = options.merge(total: total, discount: discount)
-      end
-
-      options
+      coupon.calculate(options)
     end
 
     # Create a new coupon code.

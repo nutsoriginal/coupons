@@ -53,6 +53,14 @@ module Coupons
         options
       end
 
+      def calculate options
+        input_amount = BigDecimal("#{options[:amount]}")
+        discount = BigDecimal(percentage_based? ? percentage_discount(options[:amount]) : amount)
+        total = [0, input_amount - discount].max
+        options = options.merge(total: total, discount: discount)
+        options
+      end
+
       def redemptions_count
         coupon_redemptions_count
       end
