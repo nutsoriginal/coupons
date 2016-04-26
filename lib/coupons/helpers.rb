@@ -54,6 +54,22 @@ module Coupons
       coupon.apply(options)
     end
 
+    def force_redeem(code, option)
+      options[:discount] = 0
+      options[:total] = options[:amount]
+
+      coupon = ::Coupons::Models::Coupon.find_by(code: code)
+
+      if coupon
+        input_amount = BigDecimal("#{options[:amount]}")
+        discount = BigDecimal(coupon.percentage_based? ? coupon.percentage_discount(options[:amount]) : coupon.amount)
+        total = [0, input_amount - discount].max
+        options = options.merge(total: total, discount: discount)
+      end
+
+      options
+    end
+
     # Create a new coupon code.
     def create(options)
       ::Coupons::Models::Coupon.create!(options)
