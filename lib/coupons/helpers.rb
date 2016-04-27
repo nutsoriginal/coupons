@@ -54,7 +54,7 @@ module Coupons
       coupon.apply(options)
     end
 
-    def force_redeem(code, options)
+    def force_apply(code, options)
       options[:discount] = 0
       options[:total] = options[:amount]
 
