@@ -1,6 +1,7 @@
 module Coupons
   class GlobalidSerializer
     def self.load(attachments)
+      return if attachments.nil?
       return {} unless attachments
       attachments = JSON.load(attachments)
 
