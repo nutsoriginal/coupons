@@ -40,7 +40,7 @@ module Coupons
       validate :validate_dates
 
       def apply(options)
-        input_amount = BigDecimal("#{options[:amount]}")
+        input_amount = BigDecimal("#{options[:amount]}".to_d)
         discount = BigDecimal(percentage_based? ? percentage_discount(options[:amount]) : amount)
         total = [0, input_amount - discount].max
 
@@ -54,7 +54,7 @@ module Coupons
       end
 
       def calculate options
-        input_amount = BigDecimal("#{options[:amount]}")
+        input_amount = BigDecimal("#{options[:amount]}".to_d)
         discount = BigDecimal(percentage_based? ? percentage_discount(options[:amount]) : amount)
         total = [0, input_amount - discount].max
         options = options.merge(total: total, discount: discount)
@@ -96,7 +96,7 @@ module Coupons
       private
 
       def percentage_discount(input_amount)
-        BigDecimal("#{input_amount}") * (BigDecimal("#{amount}") / 100)
+        BigDecimal("#{input_amount}".to_d) * (BigDecimal("#{amount}") / 100)
       end
 
       def validate_dates
